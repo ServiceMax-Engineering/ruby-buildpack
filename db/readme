@@ -1,2 +1,2 @@
-The mongo db package is download with command: apt-get download mongodb-org-shell=2.6.11 mongodb-org-tools=2.6.11
-And extract the deb with command like: dpkg -x mongodb-org-shell_2.6.11_amd64.deb ./extract/
+The mongo db package is download with command: apt-get download mongodb-org-shell=3.0.7 mongodb-org-tools=3.0.7
+And extract the deb with command like: dpkg -x mongodb-org-shell_3.0.7_amd64.deb
