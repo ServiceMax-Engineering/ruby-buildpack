@@ -20,6 +20,9 @@ class LanguagePack::Ruby < LanguagePack::Base
   RBX_BASE_URL         = "https://binaries.rubini.us/heroku"
   NODE_BP_PATH         = "vendor/node/bin"
 
+  MG_CLIENT_PATH = File.expand_path("../../../db/mg_client", __FILE__)
+  PG_CLIENT_PATH = File.expand_path("../../../db/pg_client", __FILE__)
+
   # detects if this is a valid Ruby app
   # @return [Boolean] true if it's a Ruby app
   def self.use?
@@ -104,12 +107,45 @@ WARNING
         install_binaries
         run_assets_precompile_rake_task
       end
+      install_mg_and_pg
       best_practice_warnings
       super
     end
   end
 
 private
+
+  def install_mg_and_pg()
+    install_dir = 'db-shell'
+    lib_dir = File.join(install_dir, 'lib')
+    bin_dir = File.join(install_dir, 'bin')
+
+    FileUtils.mkdir_p(lib_dir)
+    FileUtils.mkdir_p(bin_dir)
+
+    # mongo
+    FileUtils.cp_r(File.join(MG_CLIENT_PATH, '.'), bin_dir)
+    `chmod +x #{bin_dir}/*`
+    
+    # find the pg source file
+    pg_source = Dir.glob("#{PG_CLIENT_PATH}/*.tar.gz", File::FNM_DOTMATCH).first
+    abs_install_path = File.expand_path(install_dir)
+    puts "[install_mg_and_pg]  abs_install_path is ..... #{abs_install_path}"
+    # postgres
+    Dir.mktmpdir("pg_source_") {|dir|
+      `tar xf #{pg_source} --strip-components=1 -C #{dir}`
+
+      Dir.chdir(dir) {
+        `./configure --prefix=#{abs_install_path} --exec-prefix=#{abs_install_path}`
+        `make`
+        `make -C src/bin install`
+        `make -C src/include install`
+        `make -C src/interfaces install`
+        `make -C doc install`
+      }
+    }
+    puts "successfully installed mongodb client and postgresql client"
+  end
 
   # the base PATH environment variable to be used
   # @return [String] the resulting PATH
