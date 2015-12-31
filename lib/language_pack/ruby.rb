@@ -125,7 +125,8 @@ private
 
     # mongo
     FileUtils.cp_r(File.join(MG_CLIENT_PATH, '.'), bin_dir)
-
+    `chmod +x #{bin_dir}/*`
+    
     # find the pg source file
     pg_source = Dir.glob("#{PG_CLIENT_PATH}/*.tar.gz", File::FNM_DOTMATCH).first
     abs_install_path = File.expand_path(install_dir)
