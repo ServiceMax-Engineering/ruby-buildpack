@@ -10,7 +10,7 @@ url_to_dependency_map:
     version: $1
   - match: node-v?(\d+\.\d+\.\d+)
     name: node
-    version: 0.12.7
+    version: 4.4.4
   - match: libyaml-(\d+\.\d+\.\d+)
     name: libyaml
     version: $1
@@ -25,13 +25,13 @@ url_to_dependency_map:
     version: 0
   - match: openjdk1.8-latest
     name: openjdk1.8-latest
-    version: 1.8.0_65
+    version: 1.8.0_91
 
 dependencies:
   - name: node
-    version: 0.12.7
-    uri: https://pivotal-buildpacks.s3.amazonaws.com/node/beta-binaries/node-0.12.7-linux-x64.tar.gz
-    md5: 2b966ce7cceda8bcb6aba43eb99b81cf
+    version: 4.4.4
+    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/node/node-4.4.4-linux-x64.tgz
+    md5: 8beeb9a17a81b9832a1ccce02e6d6897
     cf_stacks:
       - cflinuxfs2
   - name: libyaml
@@ -41,9 +41,9 @@ dependencies:
     cf_stacks:
       - cflinuxfs2
   - name: bundler
-    version: 1.9.7
-    uri: https://pivotal-buildpacks.s3.amazonaws.com/ruby/binaries/shared/bundler-1.9.7.tgz
-    md5: 895b476cc0eba8b2cd978a5c5767bc71
+    version: 1.12.5
+    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/bundler/bundler-1.12.5.tgz
+    md5: 34dc19984300cf67f1beb616edaf89bc
     cf_stacks:
       - cflinuxfs2
   - name: rails_log_stdout
@@ -59,9 +59,9 @@ dependencies:
     cf_stacks:
       - cflinuxfs2
   - name: openjdk1.8-latest
-    version: 1.8.0_65
-    uri: https://download.run.pivotal.io/openjdk/trusty/x86_64/openjdk-1.8.0_65.tar.gz
-    md5: 9e135f181cd5d07cfd6a506c258947c1
+    version: 1.8.0_91
+    uri: https://download.run.pivotal.io/openjdk/trusty/x86_64/openjdk-1.8.0_91.tar.gz
+    md5: 599afb644be036c8b1de5e0863b979a5
     cf_stacks:
       - cflinuxfs2
   - name: ruby
@@ -71,9 +71,9 @@ dependencies:
     cf_stacks:
       - cflinuxfs2
   - name: ruby
-    version: 2.2.3
-    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/ruby/ruby-2.2.3-linux-x64.tgz
-    md5: bd2987703535e17b2e0f9b732adc0027
+    version: 2.3.1
+    md5: c55c51d66a18123363e7f96635b54717
+    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/ruby/ruby-2.3.1-linux-x64.tgz
     cf_stacks:
       - cflinuxfs2
   - name: ruby
@@ -83,9 +83,9 @@ dependencies:
     cf_stacks:
       - cflinuxfs2
   - name: ruby
-    version: 2.1.7
-    md5: ad98d11686ecf327e7beb9ad8f0059f6
-    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/ruby/ruby-2.1.7-linux-x64.tgz
+    version: 2.2.5
+    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/ruby/ruby-2.2.5-linux-x64.tgz
+    md5: faf863c214dd9972f18daf9861fc3898
     cf_stacks:
       - cflinuxfs2
   - name: ruby
@@ -95,27 +95,27 @@ dependencies:
     cf_stacks:
       - cflinuxfs2
   - name: ruby
-    version: 2.0.0
-    md5: 91e56ef4a433502f18f84946884dcb7b
-    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/ruby/ruby-2.0.0-p648-linux-x64.tgz
+    version: 2.1.9
+    md5: 095249c4ed574b135b2aeb699c1c8d42
+    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/ruby/ruby-2.1.9-linux-x64.tgz
     cf_stacks:
       - cflinuxfs2
   - name: jruby
-    version: ruby-1.9.3-jruby-1.7.23
-    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/jruby/jruby-1.7.23_ruby-1.9.3-linux-x64.tgz
-    md5: 84323733a5835e9be80f1d5f44496121
+    version: ruby-1.9.3-jruby-1.7.25
+    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/jruby/jruby-1.7.25_ruby-1.9.3-linux-x64.tgz
+    md5: 25f06b19a537221e02b88f30207f1afc
     cf_stacks:
       - cflinuxfs2
   - name: jruby
-    version: ruby-2.0.0-jruby-1.7.23
-    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/jruby/jruby-1.7.23_ruby-2.0.0-linux-x64.tgz
-    md5: 2b9b89815106e98735dc9eb16ba84e57
+    version: ruby-2.0.0-jruby-1.7.25
+    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/jruby/jruby-1.7.25_ruby-2.0.0-linux-x64.tgz
+    md5: ff0cf651f8521ad4a70a673c8ed99760
     cf_stacks:
       - cflinuxfs2
   - name: jruby
-    version: ruby-2.2.2-jruby-9.0.4.0
-    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/jruby/jruby-9.0.4.0_ruby-2.2.2-linux-x64.tgz
-    md5: 13411f72b486f6cabb625421bf070ea2
+    version: ruby-2.3.0-jruby-9.1.2.0
+    uri: https://pivotal-buildpacks.s3.amazonaws.com/concourse-binaries/jruby/jruby-9.1.2.0_ruby-2.3.0-linux-x64.tgz
+    md5: 1aa7047b7f7c233130ffef1af71bf7de
     cf_stacks:
       - cflinuxfs2
 

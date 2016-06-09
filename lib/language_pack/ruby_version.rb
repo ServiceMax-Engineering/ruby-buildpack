@@ -1,4 +1,6 @@
 require "language_pack/shell_helpers"
+require "language_pack/ruby_semver_version"
+require 'yaml'
 
 module LanguagePack
   class RubyVersion
@@ -12,7 +14,7 @@ module LanguagePack
       end
     end
 
-    DEFAULT_VERSION_NUMBER = "2.2.3"
+    DEFAULT_VERSION_NUMBER = "2.3.0"
     DEFAULT_VERSION        = "ruby-#{DEFAULT_VERSION_NUMBER}"
     RUBY_VERSION_REGEX     = %r{
         (?<ruby_version>\d+\.\d+\.\d+){0}
@@ -33,7 +35,24 @@ module LanguagePack
       set_version
       parse_version
 
+      update_version if engine == :ruby
+
       @version_without_patchlevel = @version.sub(/-p[\d]+/, '')
+    end
+
+    # https://github.com/bundler/bundler/issues/4621
+    def version_for_download
+      if patchlevel_is_significant?
+        @version
+      else
+        version_without_patchlevel
+      end
+    end
+
+    # Before Ruby 2.1 patch releases were done via patchlevel i.e. 1.9.3-p426 versus 1.9.3-p448
+    # With 2.1 and above patches are released in the "minor" version instead i.e. 2.1.0 versus 2.1.1
+    def patchlevel_is_significant?
+      Gem::Version.new(self.ruby_version) <= Gem::Version.new("2.1")
     end
 
     def rake_is_vendored?
@@ -99,6 +118,16 @@ module LanguagePack
       @patchlevel     = md[:patchlevel]
       @engine_version = md[:engine_version] || @ruby_version
       @engine         = (md[:engine]        || :ruby).to_sym
+    end
+
+    def update_version
+      manifest = File.join(File.dirname(__FILE__), '..', '..', 'manifest.yml')
+      gemfile = "./Gemfile"
+      version = LanguagePack::RubySemverVersion.new(gemfile,manifest).version
+      return if version.empty?
+
+      @ruby_version = version
+      @version = "ruby-"+@ruby_version
     end
   end
 end
