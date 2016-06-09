@@ -1,3 +1,95 @@
+v1.6.19 Jun 08, 2016
+=====================
+
+* Add jruby 9.1.2.0, remove jruby 9.1.0.0
+  (https://www.pivotaltracker.com/story/show/120448043)
+
+* Correctly handle constants in Gemfile during ruby version check
+  (https://www.pivotaltracker.com/story/show/120409927)
+
+* Update bundler to 1.12.5
+  (https://www.pivotaltracker.com/story/show/120316237)
+
+v1.6.18 May 11, 2016
+=====================
+
+* Make Ruby 2.3.x the default version of Ruby
+  (https://www.pivotaltracker.com/story/show/119010685)
+
+* Update node to v4.4.4
+  (https://www.pivotaltracker.com/story/show/118779505)
+
+* Ruby buildpack supports version operators when specifying a `ruby` in the `Gemfile`
+  (https://www.pivotaltracker.com/story/show/106117082)
+
+* Update bundler 1.11.2 -> 1.12.3
+  (https://www.pivotaltracker.com/story/show/119185545)
+
+* Add ruby-2.2.3-jruby-9.1.0.0, remove ruby-2.2.3-jruby-9.0.5.0
+  (https://www.pivotaltracker.com/story/show/118847051)
+
+v1.6.17 Apr 28, 2016
+=====================
+
+* Make ruby 2.2.5 the default ruby version
+  (https://www.pivotaltracker.com/story/show/118363433)
+
+* Add ruby 2.3.1
+  (https://www.pivotaltracker.com/story/show/118323233)
+
+* Add ruby 2.2.5, remove ruby 2.2.3
+  (https://www.pivotaltracker.com/story/show/118363433)
+
+* Add openjdk 1.8.0_91, remove openjdk 1.8.0_77
+  (https://www.pivotaltracker.com/story/show/118006413)
+
+* Add openjdk 1.8.0_91, remove openjdk 1.8.0_77
+  (https://www.pivotaltracker.com/story/show/118006413)
+
+v1.6.16 Apr 15, 2016
+=====================
+
+* Add jruby from 1.7.25, remove jruby 1.7.24
+  (https://www.pivotaltracker.com/story/show/117647027)
+
+* Fix checksum for OpenJDK due to rebuild
+  (https://www.pivotaltracker.com/story/show/117700771)
+
+v1.6.15 Apr 06, 2016
+=====================
+
+* Remove non-CF specific Procfile and default web server warning
+  (https://www.pivotaltracker.com/story/show/113193737)
+
+* Add openjdk 1.8.0_77, remove openjdk 1.8.0_73
+  (https://www.pivotaltracker.com/story/show/116890851)
+
+* Add ruby 2.1.9, remove ruby 2.1.7
+  (https://www.pivotaltracker.com/story/show/116842687)
+
+v1.6.14 Mar 02, 2016
+=====================
+
+* Remove ruby 2.0.0
+  (https://www.pivotaltracker.com/story/show/114681287)
+
+* Upgrade bundler to 1.11.2
+  (https://www.pivotaltracker.com/story/show/113263389)
+
+v1.6.13 Feb 08, 2016
+=====================
+
+* Update jruby to 1.7.24 and 9.0.5.0, dropped 1.7.23 and 9.0.4.0
+  (https://www.pivotaltracker.com/story/show/112073931)
+  (https://www.pivotaltracker.com/story/show/112523589)
+
+* Update openjdk to 1.8.0_73, dropped 1.8.0_65
+  (https://www.pivotaltracker.com/story/show/113292605)
+
+* Change default ruby to 2.2.4
+
+* Instruct curl to follow redirects.
+
 v1.6.12 Dec 30, 2015
 =====================
 
