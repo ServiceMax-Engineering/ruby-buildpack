@@ -42,11 +42,10 @@ module LanguagePack
     end
 
     def run!(command, options = {})
-      puts "CMD: " + command if (ENV['SHOW_COMMANDS'])
       result      = run(command, options)
       error_class = options.delete(:error_class) || StandardError
       unless $?.success?
-        message = "Command: '#{command}' failed unexpectedly:\n#{result}"
+        message = "\nCommand: '#{command}' failed unexpectedly:\n#{result}"
         raise error_class, message
       end
       return result

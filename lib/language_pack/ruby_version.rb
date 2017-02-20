@@ -9,16 +9,16 @@ module LanguagePack
         msg = ""
         msg << output
         msg << "Can not parse Ruby Version:\n"
-        msg << "Valid versions listed on: https://devcenter.heroku.com/articles/ruby-support\n"
+        msg << "Valid versions listed on: http://docs.cloudfoundry.org/buildpacks/ruby/ruby-tips.html\n"
         super msg
       end
     end
 
-    DEFAULT_VERSION_NUMBER = "2.3.0"
+    DEFAULT_VERSION_NUMBER = "TO_BE_REPLACED_BY_CF_DEFAULTS"
     DEFAULT_VERSION        = "ruby-#{DEFAULT_VERSION_NUMBER}"
     RUBY_VERSION_REGEX     = %r{
         (?<ruby_version>\d+\.\d+\.\d+){0}
-        (?<patchlevel>p\d+){0}
+        (?<patchlevel>p-?\d+){0}
         (?<engine>\w+){0}
         (?<engine_version>.+){0}
 
@@ -37,12 +37,12 @@ module LanguagePack
 
       update_version if engine == :ruby
 
-      @version_without_patchlevel = @version.sub(/-p[\d]+/, '')
+      @version_without_patchlevel = @version.sub(/-p-?\d+/, '')
     end
 
     # https://github.com/bundler/bundler/issues/4621
     def version_for_download
-      if patchlevel_is_significant?
+      if patchlevel_is_significant? && @patchlevel && @patchlevel.sub(/p/, '').to_i >= 0
         @version
       else
         version_without_patchlevel
@@ -122,12 +122,18 @@ module LanguagePack
 
     def update_version
       manifest = File.join(File.dirname(__FILE__), '..', '..', 'manifest.yml')
-      gemfile = "./Gemfile"
+      gemfile = ENV['BUNDLE_GEMFILE'] || "./Gemfile"
       version = LanguagePack::RubySemverVersion.new(gemfile,manifest).version
       return if version.empty?
 
       @ruby_version = version
       @version = "ruby-"+@ruby_version
+    end
+
+    def self.default_ruby_version
+      bin_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "compile-extensions", "bin"))
+      manifest_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "manifest.yml"))
+      `#{bin_path}/default_version_for #{manifest_path} ruby`.chomp
     end
   end
 end

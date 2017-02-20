@@ -31,6 +31,14 @@ describe LanguagePack::RubySemverVersion do
           expect { subject }.to_not raise_error
         end
       end
+
+      context "gemfile with global ruby constants in conditionals" do
+        let(:gemfile) { File.join(fixtures, 'Gemfile_with_constants_in_conditionals') }
+        it "don't raise an error" do
+          expect { subject }.to_not raise_error
+        end
+        it { should eq('8.2.7') }
+      end
     end
 
     context "unordered manifest" do
@@ -57,13 +65,13 @@ describe LanguagePack::RubySemverVersion do
 
       context "specified_ruby_version fixture" do
         let(:gemfile) { File.join(fixtures, '..', 'specified_ruby_version', 'Gemfile') }
-        it { should eq('2.2.5') }
+        it { should eq('2.2.6') }
       end
 
       context "unspecified_ruby fixture" do
         let(:gemfile) { File.join(fixtures, '..', 'unspecified_ruby', 'Gemfile') }
         it 'finds a ruby matching "~> DEFAULT_VERSION_NUMBER"' do
-          expect(subject).to eq('2.3.1')
+          expect(subject).to eq('2.3.3')
         end
       end
     end

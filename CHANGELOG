@@ -1,3 +1,180 @@
+v1.6.34 Feb 07, 2017
+=====================
+
+* Add EOL dates for jruby, openjdk and node
+  (https://www.pivotaltracker.com/story/show/137374307)
+
+* Add node 4.7.3, remove node 4.7.2
+  (https://www.pivotaltracker.com/story/show/138773607)
+
+* Remove unlicensed external dependencies: rails_log_stdout and rails3_serve_static_assets
+  (https://www.pivotaltracker.com/story/show/138644499)
+
+v1.6.33 Jan 23, 2017
+=====================
+
+* Add bundler 1.14.2, remove bundler 1.13.7
+  (https://www.pivotaltracker.com/story/show/138119911)
+
+* Add jruby 9.1.7.0, remove jruby 9.1.5.0
+  (https://www.pivotaltracker.com/story/show/137476393)
+
+* Add openjdk 1.8.0_121, remove openjdk 1.8.0_111
+  (https://www.pivotaltracker.com/story/show/137883043)
+
+v1.6.32 Jan 10, 2017
+=====================
+
+* Add warning if downloaded dependency is not the latest patch version for a
+given major and minor version
+  (https://www.pivotaltracker.com/story/show/134863437)
+
+* Add new version warning to Ruby buildpack
+  (https://www.pivotaltracker.com/story/show/135234395)
+
+* Add bundler 1.13.7, remove bundler 1.13.6
+  (https://www.pivotaltracker.com/story/show/136650377)
+
+* Add ruby 2.4.0
+  (https://www.pivotaltracker.com/story/show/136620759)
+
+* Add node 4.7.2, remove node 4.7.0
+  (https://www.pivotaltracker.com/story/show/137135283)
+  (https://www.pivotaltracker.com/story/show/136994135)
+
+v1.6.30 Dec 19, 2016
+=====================
+
+* Add jruby 9.1.5.0, remove jruby 9.1.2.0
+  (https://www.pivotaltracker.com/story/show/129904651)
+
+* Add node 4.7.0, remove node 4.6.2
+  (https://www.pivotaltracker.com/story/show/135648535)
+
+v1.6.29 Dec 06, 2016
+=====================
+
+* Add ruby 2.1.10, remove ruby 2.1.8
+
+* Add ruby 2.2.6, remove ruby 2.2.4
+  (https://www.pivotaltracker.com/story/show/134340425)
+
+* Add ruby 2.3.2 and 2.3.3, remove ruby 2.3.1
+  (https://www.pivotaltracker.com/story/show/134330017)
+  (https://www.pivotaltracker.com/story/show/134696699)
+
+* Rebuild and change path for ruby, jruby, bundler, node binaries and
+  rails patching code
+  - We identified a potential, but unlikely, attack vector in our continuous
+    integration system. Our own auditing strongly suggests that this attack
+    vector was not taken advantage of. However, out of an abundance of caution,
+    we are rebuilding all buildpack dependencies that we maintain.
+
+v1.6.28 Nov 09, 2016
+=====================
+
+* Add node 4.6.2, remove node 4.6.1
+  (https://www.pivotaltracker.com/story/show/133955125)
+
+* Add bundler 1.13.6, remove bundler 1.13.5
+  (https://www.pivotaltracker.com/story/show/132957609)
+
+* Add openjdk 1.8.0_111, remove openjdk 1.8.0_101
+  (https://www.pivotaltracker.com/story/show/132711731)
+
+* Ensure all downloaded binaries have checksums verified
+  (https://www.pivotaltracker.com/story/show/128099189)
+
+v1.6.27 Oct 18, 2016
+=====================
+
+* Add node 4.6.1, remove node 4.6.0
+  (https://www.pivotaltracker.com/story/show/132686391)
+
+* Add bundler 1.13.5, remove bundler 1.13.1
+  (https://www.pivotaltracker.com/story/show/132366579)
+
+v1.6.26 Sep 28, 2016
+=====================
+
+* Address USN-3087-1: OpenSSL vulnerabilities by updating node.
+  The new version of node included in this buildpack was built
+  against the patched version of OpenSSL
+  (https://www.pivotaltracker.com/story/show/130945067)
+
+* Add node 4.6.0, remove node 4.5.0
+  (https://www.pivotaltracker.com/story/show/131225127)
+
+v1.6.25 Sep 19, 2016
+=====================
+
+* Remove vendored libyaml
+  (https://www.pivotaltracker.com/story/show/130619237)
+
+* Add bundler 1.13.1, remove bundler 1.12.5
+  (https://www.pivotaltracker.com/story/show/130298183)
+
+v1.6.24 Sep 08, 2016
+=====================
+
+* Remove jruby-1.7.25, add jruby-1.7.26
+  (https://www.pivotaltracker.com/story/show/129371937)
+
+* Remove large variety of heroku references in staging output
+  (https://www.pivotaltracker.com/story/show/127931269)
+
+v1.6.23 Aug 31, 2016
+=====================
+
+* Fix crash in staging when Gemfile contains a gemspec with a relative path
+  (https://www.pivotaltracker.com/story/show/129458773)
+
+* Fix md5 checksum for OpenJDK 1.8 due to rebuild
+  (https://www.pivotaltracker.com/story/show/129462209)
+
+v1.6.22 Aug 25, 2016
+=====================
+
+* Add node 4.5.0, remove node 4.4.7
+  (https://www.pivotaltracker.com/story/show/128431641)
+
+* Ruby runtime selection respects `BUNDLE_GEMFILE` environment variable
+  (https://www.pivotaltracker.com/story/show/128974739)
+
+v1.6.21 Aug 11, 2016
+=====================
+
+* Redact credentials from URLs in a cached buildpack's output
+  (https://www.pivotaltracker.com/story/show/127357631)
+
+* Update buildpack-packager to 2.3.3
+  (https://www.pivotaltracker.com/story/show/127357631)
+
+* Redact credentials from URLs in an uncached buildpack's output
+  (https://www.pivotaltracker.com/story/show/126514693)
+
+* Add default_versions support to buildpack
+  (https://www.pivotaltracker.com/story/show/126394819)
+
+* Add node 4.4.7, remove node 4.4.4
+  (https://www.pivotaltracker.com/story/show/123264921)
+
+* Download openjdk from java-buildpack.cloudfoundry.org
+  (https://www.pivotaltracker.com/story/show/126972537)
+
+* Add openjdk 1.8.0_101, remove 1.8.0_91
+  (https://www.pivotaltracker.com/story/show/126661389)
+
+* The default domain for buildpack dependencies is now buildpacks.cloudfoundry.org
+  (https://www.pivotaltracker.com/story/show/121757949)
+
+v1.6.20 Jul 14, 2016
+=====================
+
+* Modify RubySemverVersion to use Bundler DSL to read file
+  (https://www.pivotaltracker.com/story/show/121730559)
+
+
 v1.6.19 Jun 08, 2016
 =====================
 
