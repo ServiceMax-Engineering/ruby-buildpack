@@ -1,5 +1,6 @@
 require "language_pack/shell_helpers"
 require 'yaml'
+require 'pathname'
 
 module LanguagePack
   class RubySemverVersion
@@ -28,28 +29,17 @@ module LanguagePack
     end
 
     def ruby_requirement(gemfile)
-      gemfile_reader = GemfileReader.new
-      gemfile_reader.instance_eval(File.read(gemfile), gemfile)
-      ruby_version = gemfile_reader.ruby_version
-      unless ruby_version
-        ruby_version = "~> #{LanguagePack::RubyVersion::DEFAULT_VERSION_NUMBER}"
-      end
-      @ruby_requirement = Gem::Requirement.create(ruby_version)
-    end
+      # This can be restored to passing in 'gemfile' once bundler 1.13 is
+      # released
+      full_gemfile_path = Pathname.new(gemfile).expand_path.to_s
+      ruby_version = Bundler::Dsl.evaluate(full_gemfile_path, "#{gemfile}.lock", {}).ruby_version
 
-    class GemfileReader < BasicObject
-      attr_reader :ruby_version
-
-      def ruby(*ruby_version)
-        ruby_version.pop if ruby_version.last.is_a?(::Hash)
-        @ruby_version = ruby_version.flatten
+      if ruby_version
+        engine_versions = ruby_version.engine_versions
+      else
+        engine_versions = "~> #{LanguagePack::RubyVersion::DEFAULT_VERSION_NUMBER}"
       end
-
-      def method_missing(*args)
-      end
-
-      def self.const_missing(name)
-      end
+      @ruby_requirement = Gem::Requirement.create(engine_versions)
     end
   end
 end

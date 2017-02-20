@@ -12,9 +12,7 @@ require "language_pack/version"
 # base Ruby Language Pack. This is for any base ruby app.
 class LanguagePack::Ruby < LanguagePack::Base
   NAME                 = "ruby"
-  LIBYAML_VERSION      = "0.1.6"
-  LIBYAML_PATH         = "libyaml-#{LIBYAML_VERSION}"
-  BUNDLER_VERSION      = "1.12.5"
+  BUNDLER_VERSION      = "1.14.3"
   BUNDLER_GEM_PATH     = "bundler-#{BUNDLER_VERSION}"
   RBX_BASE_URL         = "https://binaries.rubini.us/heroku"
   NODE_BP_PATH         = "vendor/node/bin"
@@ -78,14 +76,7 @@ class LanguagePack::Ruby < LanguagePack::Base
     end
   end
 
-  def best_practice_warnings
-    if bundler.has_gem?("asset_sync")
-      warn(<<-WARNING)
-You are using the `asset_sync` gem.
-See https://devcenter.heroku.com/articles/please-do-not-use-asset-sync for more information.
-WARNING
-    end
-  end
+  def best_practice_warnings; end
 
   def compile
     instrument 'ruby.compile' do
@@ -93,6 +84,7 @@ WARNING
       new_app?
       Dir.chdir(build_path)
       remove_vendor_bundle
+      warn_bundler_upgrade
       install_ruby
       install_jvm
       setup_language_pack_environment
@@ -144,6 +136,18 @@ private
       }
     }
     puts "successfully installed mongodb client and postgresql client"
+  end
+
+  def warn_bundler_upgrade
+    old_bundler_version  = @metadata.read("bundler_version").chomp if @metadata.exists?("bundler_version")
+
+    if old_bundler_version && old_bundler_version != BUNDLER_VERSION
+      puts(<<-WARNING)
+Your app was upgraded to bundler #{ BUNDLER_VERSION }.
+Previously you had a successful deploy with bundler #{ old_bundler_version }.
+
+WARNING
+    end
   end
 
   # the base PATH environment variable to be used
@@ -422,7 +426,7 @@ ERROR_MSG
 You have not declared a Ruby version in your Gemfile.
 To set your Ruby version add this line to your Gemfile:
 #{ruby_version.to_gemfile}
-# See https://devcenter.heroku.com/articles/ruby-versions for more information.
+# See http://docs.cloudfoundry.org/buildpacks/ruby/index.html#runtime for more information.
 WARNING
       end
     end
@@ -432,20 +436,13 @@ WARNING
     message = <<ERROR
 An error occurred while installing #{ruby_version.version_for_download}
 
-Heroku recommends you use the latest supported Ruby version listed here:
-  https://devcenter.heroku.com/articles/ruby-support#supported-runtimes
+It is recommended you use the latest supported Ruby version listed here:
+  http://docs.cloudfoundry.org/buildpacks/ruby/#supported_versions
 
 For more information on syntax for declaring a Ruby version see:
-  https://devcenter.heroku.com/articles/ruby-versions
+  http://docs.cloudfoundry.org/buildpacks/ruby/index.html#runtime
 
 ERROR
-
-    if ruby_version.jruby?
-      message << "Note: Only JRuby 1.7.13 and newer are supported on Cedar-14"
-    elsif ruby_version.ruby_version.start_with?("2.1")
-      message << "Note: Only the most recent version of Ruby 2.1 is supported on Cedar-14\n"
-    end
-
     message << "\nDebug Information"
     message << error.message
 
@@ -551,21 +548,9 @@ ERROR
     end
   end
 
-  # install libyaml into the LP to be referenced for psych compilation
-  # @param [String] tmpdir to store the libyaml files
-  def install_libyaml(dir)
-    instrument 'ruby.install_libyaml' do
-      FileUtils.mkdir_p dir
-      Dir.chdir(dir) do |dir|
-        @fetchers[:buildpack].fetch_untar("#{LIBYAML_PATH}.tgz")
-      end
-    end
-  end
-
   # remove `vendor/bundle` that comes from the git repo
   # in case there are native ext.
   # users should be using `bundle pack` instead.
-  # https://github.com/heroku/heroku-buildpack-ruby/issues/21
   def remove_vendor_bundle
     if File.exists?("vendor/bundle")
       warn(<<-WARNING)
@@ -598,7 +583,6 @@ You have the `.bundle/config` file checked into your repository
  as well as configured git local gems, and other settings that should
 not be shared between multiple checkouts of a single repo. Please
 remove the `.bundle/` folder from your repo and add it to your `.gitignore` file.
-https://devcenter.heroku.com/articles/bundler-configuration
 WARNING
         end
 
@@ -623,32 +607,22 @@ WARNING
 
         bundler_output = ""
         bundle_time    = nil
-        Dir.mktmpdir("libyaml-") do |tmpdir|
-          libyaml_dir = "#{tmpdir}/#{LIBYAML_PATH}"
-          install_libyaml(libyaml_dir)
 
-          # need to setup compile environment for the psych gem
-          yaml_include   = File.expand_path("#{libyaml_dir}/include").shellescape
-          yaml_lib       = File.expand_path("#{libyaml_dir}/lib").shellescape
-          pwd            = Dir.pwd
-          bundler_path   = "#{pwd}/#{slug_vendor_base}/gems/#{BUNDLER_GEM_PATH}/lib"
-          # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
-          # codon since it uses bundler.
-          env_vars       = {
-            "BUNDLE_GEMFILE"                => "#{pwd}/#{ENV['BUNDLE_GEMFILE']}",
-            "BUNDLE_CONFIG"                 => "#{pwd}/.bundle/config",
-            "CPATH"                         => noshellescape("#{yaml_include}:$CPATH"),
-            "CPPATH"                        => noshellescape("#{yaml_include}:$CPPATH"),
-            "LIBRARY_PATH"                  => noshellescape("#{yaml_lib}:$LIBRARY_PATH"),
-            "RUBYOPT"                       => syck_hack,
-            "NOKOGIRI_USE_SYSTEM_LIBRARIES" => "true"
-          }
-          env_vars["BUNDLER_LIB_PATH"] = "#{bundler_path}" if ruby_version.ruby_version == "1.8.7"
-          puts "Running: #{bundle_command}"
-          instrument "ruby.bundle_install" do
-            bundle_time = Benchmark.realtime do
-              bundler_output << pipe("#{bundle_command} --no-clean", out: "2>&1", env: env_vars, user_env: true)
-            end
+        # need to setup compile environment for the psych gem
+        pwd            = Dir.pwd
+        bundler_path   = "#{pwd}/#{slug_vendor_base}/gems/#{BUNDLER_GEM_PATH}/lib"
+        # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
+        # codon since it uses bundler.
+        env_vars       = {
+          "BUNDLE_GEMFILE"                => "#{pwd}/#{ENV['BUNDLE_GEMFILE']}",
+          "BUNDLE_CONFIG"                 => "#{pwd}/.bundle/config",
+          "NOKOGIRI_USE_SYSTEM_LIBRARIES" => "true"
+        }
+        env_vars["BUNDLER_LIB_PATH"] = "#{bundler_path}" if ruby_version.ruby_version == "1.8.7"
+        puts "Running: #{bundle_command}"
+        instrument "ruby.bundle_install" do
+          bundle_time = Benchmark.realtime do
+            bundler_output << pipe("#{bundle_command} --no-clean", out: "2>&1", env: env_vars, user_env: true)
           end
         end
 
@@ -672,14 +646,6 @@ WARNING
           log "bundle", :status => "failure"
           error_message = "Failed to install gems via Bundler."
           puts "Bundler Output: #{bundler_output}"
-          if bundler_output.match(/An error occurred while installing sqlite3/)
-            error_message += <<ERROR
-
-
-Detected sqlite3 gem which is not supported on Heroku.
-https://devcenter.heroku.com/articles/sqlite3
-ERROR
-          end
 
           error error_message
         end
@@ -693,21 +659,6 @@ ERROR
         FileUtils.rm_rf(dir)
       end
       bundler.clean
-    end
-  end
-
-  # RUBYOPT line that requires syck_hack file
-  # @return [String] require string if needed or else an empty string
-  def syck_hack
-    instrument "ruby.syck_hack" do
-      syck_hack_file = File.expand_path(File.join(File.dirname(__FILE__), "../../vendor/syck_hack"))
-      rv             = run_stdout('ruby -e "puts RUBY_VERSION"').chomp
-      # < 1.9.3 includes syck, so we need to use the syck hack
-      if Gem::Version.new(rv) < Gem::Version.new("1.9.3")
-        "-r#{syck_hack_file}"
-      else
-        ""
-      end
     end
   end
 
@@ -785,6 +736,7 @@ params = CGI.parse(uri.query || "")
       rake_gem_available = bundler.has_gem?("rake") || ruby_version.rake_is_vendored?
       raise_on_fail      = bundler.gem_version('railties') && bundler.gem_version('railties') > Gem::Version.new('3.x')
 
+      topic "Detecting rake tasks"
       rake = LanguagePack::Helpers::RakeRunner.new(rake_gem_available)
       rake.load_rake_tasks!({ env: rake_env }, raise_on_fail)
       rake
@@ -814,7 +766,7 @@ params = CGI.parse(uri.query || "")
   # decides if we need to enable the dev database addon
   # @return [Array] the database addon if the pg gem is detected or an empty Array if it isn't.
   def add_dev_database_addon
-    bundler.has_gem?("pg") ? ['heroku-postgresql'] : []
+    []
   end
 
   # decides if we need to install the node.js binary
@@ -824,7 +776,7 @@ params = CGI.parse(uri.query || "")
     bundler.has_gem?('execjs') && node_not_preinstalled? ? [@node_installer.binary_path] : []
   end
 
-  # checks if node.js is installed via the official heroku-buildpack-nodejs using multibuildpack
+  # checks if node.js is installed
   # @return String if it's detected and false if it isn't
   def node_preinstall_bin_path
     return @node_preinstall_bin_path if defined?(@node_preinstall_bin_path)
@@ -866,7 +818,7 @@ params = CGI.parse(uri.query || "")
     msg = "Precompiling assets failed.\n"
     if output.match(/(127\.0\.0\.1)|(org\.postgresql\.util)/)
       msg << "Attempted to access a nonexistent database:\n"
-      msg << "https://devcenter.heroku.com/articles/pre-provision-database\n"
+      msg << "https://docs.cloudfoundry.org/buildpacks/ruby/ruby-service-bindings.html\n"
     end
     error msg
   end
@@ -890,21 +842,9 @@ params = CGI.parse(uri.query || "")
       rubygems_version_cache  = "rubygems_version"
       stack_cache             = "stack"
 
-      old_bundler_version  = @metadata.read(bundler_version_cache).chomp if @metadata.exists?(bundler_version_cache)
       old_rubygems_version = @metadata.read(ruby_version_cache).chomp if @metadata.exists?(ruby_version_cache)
       old_stack = @metadata.read(stack_cache).chomp if @metadata.exists?(stack_cache)
       old_stack ||= DEFAULT_LEGACY_STACK
-
-      if old_bundler_version && old_bundler_version != BUNDLER_VERSION
-        puts(<<-WARNING)
-Your app was upgraded to bundler #{ BUNDLER_VERSION }.
-Previously you had a successful deploy with bundler #{ old_bundler_version }.
-
-If you see problems related to the bundler version please refer to:
-https://devcenter.heroku.com/articles/bundler-version
-
-WARNING
-      end
 
       stack_change  = old_stack != @stack
       convert_stack = @bundler_cache.old?
@@ -939,25 +879,10 @@ WARNING
         purge_bundler_cache
       end
 
-      # fix for https://github.com/heroku/heroku-buildpack-ruby/issues/86
-      if (!@metadata.exists?(rubygems_version_cache) ||
-          (old_rubygems_version == "2.0.0" && old_rubygems_version != rubygems_version)) &&
-          @metadata.exists?(ruby_version_cache) && @metadata.read(ruby_version_cache).chomp.include?("ruby 2.0.0p0")
-        puts "Updating to rubygems #{rubygems_version}. Clearing bundler cache."
-        purge_bundler_cache
-      end
-
       # fix for https://github.com/sparklemotion/nokogiri/issues/923
       if @metadata.exists?(buildpack_version_cache) && (bv = @metadata.read(buildpack_version_cache).sub('v', '').to_i) && bv != 0 && bv <= 76
         puts "Fixing nokogiri install. Clearing bundler cache."
         puts "See https://github.com/sparklemotion/nokogiri/issues/923."
-        purge_bundler_cache
-      end
-
-      # recompile nokogiri to use new libyaml
-      if @metadata.exists?(buildpack_version_cache) && (bv = @metadata.read(buildpack_version_cache).sub('v', '').to_i) && bv != 0 && bv <= 99 && bundler.has_gem?("psych")
-        puts "Need to recompile psych for CVE-2013-6393. Clearing bundler cache."
-        puts "See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=737076."
         purge_bundler_cache
       end
 

@@ -29,7 +29,6 @@ $:.unshift File.expand_path("..", __FILE__)
 require 'dotenv'
 require 'language_pack/shell_helpers'
 require 'language_pack/instrument'
-require "language_pack/helpers/plugin_installer"
 require "language_pack/helpers/stale_file_cleaner"
 require "language_pack/helpers/rake_runner"
 require "language_pack/helpers/bundler_wrapper"
@@ -38,7 +37,6 @@ require "language_pack/ruby"
 require "language_pack/rack"
 require "language_pack/rails2"
 require "language_pack/rails3"
-require "language_pack/disable_deploys"
 require "language_pack/rails4"
 require "language_pack/rails41"
 require "language_pack/rails42"
